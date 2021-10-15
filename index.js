@@ -17,14 +17,18 @@ const slackToken = process.env.SLACK_SECRET;
 
 exports.bananaSplit = async (req, res) => {
     console.log(slackToken);
+    console.log(req.body.ts);
     getChannelUsers(req.body.channel_id).then((membersHashed) => {
         console.log('members Hashed ', membersHashed);
         console.log('channel_id ', req.body.channel_id);
         const randomMember = membersHashed[Math.floor(Math.random() * membersHashed.length)];
         console.log('randomMember ', randomMember);
         let message = `Cześć <@${randomMember}>, wyznaczono cię do review!`;
-        sendMessage(req.body.channel_id, req.body.response_url, message)
-        res.status(200);
+        //sendMessage(req.body.channel_id, req.body.response_url, message)
+        res.status(200).json({
+            "response_type": "ephemeral",
+            "text": message
+        });
     })
 };
 
@@ -38,7 +42,7 @@ async function getChannelUsers(channel_id) {
 
 async function sendMessage(channel_id, response_url, message) {
     const res = await axios.post(response_url, {
-        replace_original: true,
+        replace_original: false,
         text: message,
     }, {headers: {authorization: `Bearer ${slackToken}`}});
     console.log('Send Message result', res.data)
