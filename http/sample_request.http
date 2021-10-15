@@ -1,0 +1,10 @@
+# curl --location --request POST 'http://localhost:3000/'
+#--header 'Content-Type: application/x-www-form-urlencoded'
+#--data-urlencode 'channel_id=C02HG6SMQMV'
+POST http://localhost:3000/
+Content-Type: application/x-www-form-urlencoded
+
+channel_id=C02HG6SMQMV
+
+###
+

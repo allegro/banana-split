@@ -1,9 +1,3 @@
-gcloud functions deploy bananaSplit \
---runtime nodejs14 \
---trigger-http \
---allow-unauthenticated
-
-
 <img src="https://avatars2.githubusercontent.com/u/2810941?v=3&s=96" alt="Google Cloud Platform logo" title="Google Cloud Platform" align="right" height="96" width="96"/>
 
 # Google Cloud Functions - Slack Slash Command sample
@@ -31,3 +25,20 @@ See the [Cloud Functions Slack tutorial][tutorial].
 1. Run the tests:
 
         npm test
+
+## Deploy
+
+
+         gcloud functions deploy bananaSplit \
+         --runtime nodejs14 \
+         --trigger-http \
+         --allow-unauthenticated \
+         --set-env-vars SLACK_SECRET=<SLACK_BOT_API_TOKEN>
+
+## Local run
+
+Use following command to run application locally on port 3000:
+
+         SLACK_SECRET=<SLACK_BOT_TOKEN> node run-local.js 
+
+You can use sample http request from `http` folder in order to check if everything works
