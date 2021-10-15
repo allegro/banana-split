@@ -24,8 +24,10 @@ exports.bananaSplit = async (req, res) => {
         console.log('randomMember ', randomMember);
         let prLink = req.body.text;
         let message = `Cześć <@${randomMember}>, wyznaczono cię do review! ${prLink}`;
-        sendMessage(req.body.channel_id, req.body.response_url, message)
-        res.status(200);
+        res.status(200).json({
+            "response_type": "ephemeral",
+            "text": message
+        });
     })
 };
 
