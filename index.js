@@ -16,37 +16,29 @@ const axios = require('axios');
 const slackToken = process.env.SLACK_SECRET;
 
 exports.bananaSplit = async (req, res) => {
-  console.log(slackToken);
-  //const membersHashed = ["U02HG70MSA3", "U02HTTJSQLV", "U02HWT487NW"];
-  getChannelUsers(req.body.channel_id).then((membersHashed)=>{
-    console.log('members Hashed ', membersHashed);
-    console.log('channel_id ', req.body.channel_id);
-    const randomMember = membersHashed[Math.floor(Math.random()*membersHashed.length)];
-    console.log('randomMember ', randomMember);
-    let message = `Cześć <@${randomMember}>, wyznaczono cię do review!`;
-    sendMessage(req.body.channel_id, req.body.trigger_id, message)
-    res.set('Content-Type', 'application/json');
-    res.status(200).json({
-      "response_type": "in_channel",
-      "text": message
-    });
-  })
+    console.log(slackToken);
+    getChannelUsers(req.body.channel_id).then((membersHashed) => {
+        console.log('members Hashed ', membersHashed);
+        console.log('channel_id ', req.body.channel_id);
+        const randomMember = membersHashed[Math.floor(Math.random() * membersHashed.length)];
+        console.log('randomMember ', randomMember);
+        let message = `Cześć <@${randomMember}>, wyznaczono cię do review!`;
+        sendMessage(req.body.channel_id, req.body.response_url, message)
+        res.status(200);
+    })
 };
 
 async function getChannelUsers(channel_id) {
-  const url = `https://slack.com/api/conversations.members?channel=${channel_id}`;
-  const res = await axios.get(url, { headers: { authorization: `Bearer ${slackToken}` } });
-  console.log('url ', url);
-  console.log('response data ', res.data);
-  return res.data.members;
+    const url = `https://slack.com/api/conversations.members?channel=${channel_id}`;
+    const res = await axios.get(url, {headers: {authorization: `Bearer ${slackToken}`}});
+    console.log('url ', url);
+    console.log('response data ', res.data);
+    return res.data.members;
 }
 
-async function sendMessage(channel_id, ts, message){
-  const url = 'https://slack.com/api/chat.postMessage';
-  const res = await axios.post(url, {
-    channel: channel_id,
-    text: message,
-    thread_ts: ts
-  }, { headers: { authorization: `Bearer ${slackToken}` } });
-  console.log('Send Message result', res.data)
+async function sendMessage(channel_id, response_url, message) {
+    const res = await axios.post(response_url, {
+        text: message,
+    }, {headers: {authorization: `Bearer ${slackToken}`}});
+    console.log('Send Message result', res.data)
 }
