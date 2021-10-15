@@ -17,18 +17,17 @@ const slackToken = process.env.SLACK_SECRET;
 
 exports.bananaSplit = async (req, res) => {
     console.log(slackToken);
-    getChannelUsers(req.body.channel_id).then((membersHashed) => {
-        console.log('members Hashed ', membersHashed);
-        console.log('channel_id ', req.body.channel_id);
-        const randomMember = membersHashed[Math.floor(Math.random() * membersHashed.length)];
-        console.log('randomMember ', randomMember);
-        let prLink = req.body.text;
-        let message = randomMember && `Cześć <@${randomMember}>, wyznaczono cię do review! ${prLink}` || 'Error!';
-        res.status(200).json({
-            "response_type": "in_channel",
-            "text": message
-        });
-    })
+    const membersHashed = await getChannelUsers(req.body.channel_id)
+    console.log('members Hashed ', membersHashed);
+    console.log('channel_id ', req.body.channel_id);
+    const randomMember = membersHashed[Math.floor(Math.random() * membersHashed.length)];
+    console.log('randomMember ', randomMember);
+    let prLink = req.body.text;
+    let message = randomMember && `Cześć <@${randomMember}>, wyznaczono cię do review! ${prLink}` || 'Error!';
+    res.status(200).json({
+        "response_type": "in_channel",
+        "text": message
+    });
 };
 
 async function getChannelUsers(channel_id) {
