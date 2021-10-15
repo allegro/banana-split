@@ -13,8 +13,13 @@
 // limitations under the License.
 
 exports.bananaSplit = (req, res) => {
-  let message = req.query.message || req.body.message ||
-      `Hello Banana`;
+  const membersHashed = ["U02HG70MSA3", "U02HTTJSQLV", "U02HWT487NW"];
+  const randomMember = membersHashed[Math.floor(Math.random()*membersHashed.length)];
+  let message = `Cześć <@${randomMember}>, ${randomMember}, zostałeś wyznaczony do review!`;
   res.set('Content-Type', 'application/json');
-  res.status(200).send(message);
+  res.status(200).send(JSON.stringify({
+    "response_type": "in_channel",
+    "text": message
+  }));
 };
+
