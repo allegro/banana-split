@@ -24,6 +24,7 @@ exports.bananaSplit = async (req, res) => {
         console.log('randomMember ', randomMember);
         let prLink = req.body.text;
         let message = `Cześć <@${randomMember}>, wyznaczono cię do review! ${prLink}`;
+        sendDM(randomMember, message)
         res.status(200).json({
             "response_type": "in_channel",
             "text": message
@@ -39,3 +40,10 @@ async function getChannelUsers(channel_id) {
     return res.data.members;
 }
 
+async function sendDM(user_id, message){
+    const url = 'https://slack.com/api/chat.postMessage';
+    await axios.post(url, {
+        channel: user_id,
+        text: message,
+    }, { headers: { authorization: `Bearer ${slackToken}` } }).then(() => console.log("Send DM"));
+}
