@@ -24,7 +24,7 @@ exports.bananaSplit = async (req, res) => {
     const randomMember = membersHashed[Math.floor(Math.random()*membersHashed.length)];
     console.log('randomMember ', randomMember);
     let message = `Cześć <@${randomMember}>, wyznaczono cię do review!`;
-    sendMessage(req.body.channel_id, req.body.channel_id, message)
+    sendMessage(req.body.channel_id, req.body.trigger_id, message)
     res.set('Content-Type', 'application/json');
     res.status(200).json({
       "response_type": "in_channel",
