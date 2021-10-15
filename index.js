@@ -13,7 +13,7 @@
 // limitations under the License.
 const axios = require('axios');
 
-const slackToken = 'xoxb-2608914200098-2611274860692-yhpDS3f7vBrlbGOFCOSTocP3';
+const slackToken = 'xoxb-2608914200098-2611274860692-7vYIrU2JB1uGIQmhxBPjyR5l';
 
 exports.bananaSplit = (req, res) => {
   //const membersHashed = ["U02HG70MSA3", "U02HTTJSQLV", "U02HWT487NW"];
