@@ -15,28 +15,38 @@ const axios = require('axios');
 
 const slackToken = process.env.SLACK_SECRET;
 
-exports.bananaSplit = (req, res) => {
+exports.bananaSplit = async (req, res) => {
   console.log(slackToken);
   //const membersHashed = ["U02HG70MSA3", "U02HTTJSQLV", "U02HWT487NW"];
-  const membersHashed = getChannelUsers(req.query.channel_id)
-  console.log(membersHashed);
-  console.log(req.query.channel_id);
-  console.log(req.query);
-  const randomMember = membersHashed[Math.floor(Math.random()*membersHashed.length)];
-  console.log(randomMember);
-  let message = `Cześć <@${randomMember}>, ${randomMember}, zostałeś wyznaczony do review!`;
-  res.set('Content-Type', 'application/json');
-  res.status(200).json({
-    "response_type": "in_channel",
-    "text": message
-  });
+  getChannelUsers(req.body.channel_id).then((membersHashed)=>{
+    console.log('members Hashed ', membersHashed);
+    console.log('channel_id ', req.body.channel_id);
+    const randomMember = membersHashed[Math.floor(Math.random()*membersHashed.length)];
+    console.log('randomMember ', randomMember);
+    let message = `Cześć <@${randomMember}>, wyznaczono cię do review!`;
+    sendMessage(req.body.channel_id, req.body.channel_id, message)
+    res.set('Content-Type', 'application/json');
+    res.status(200).json({
+      "response_type": "in_channel",
+      "text": message
+    });
+  })
 };
 
 async function getChannelUsers(channel_id) {
   const url = `https://slack.com/api/conversations.members?channel=${channel_id}`;
   const res = await axios.get(url, { headers: { authorization: `Bearer ${slackToken}` } });
-  console.log(url);
-  console.log(res.data);
+  console.log('url ', url);
+  console.log('response data ', res.data);
   return res.data.members;
 }
 
+async function sendMessage(channel_id, ts, message){
+  const url = 'https://slack.com/api/chat.postMessage';
+  const res = await axios.post(url, {
+    channel: channel_id,
+    text: message,
+    thread_ts: ts
+  }, { headers: { authorization: `Bearer ${slackToken}` } });
+  console.log('Send Message result', res.data)
+}
