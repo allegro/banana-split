@@ -38,6 +38,7 @@ async function getChannelUsers(channel_id) {
 
 async function sendMessage(channel_id, response_url, message) {
     const res = await axios.post(response_url, {
+        replace_original: true,
         text: message,
     }, {headers: {authorization: `Bearer ${slackToken}`}});
     console.log('Send Message result', res.data)
