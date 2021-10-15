@@ -11,10 +11,31 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+const axios = require('axios');
 
-exports.bananaSplit = (req, res) => {
-  let message = req.query.message || req.body.message ||
-      `Hello Banana`;
-  res.set('Content-Type', 'application/json');
-  res.status(200).send(message);
+const slackToken = process.env.SLACK_SECRET;
+
+exports.bananaSplit = async (req, res) => {
+    console.log(slackToken);
+    getChannelUsers(req.body.channel_id).then((membersHashed) => {
+        console.log('members Hashed ', membersHashed);
+        console.log('channel_id ', req.body.channel_id);
+        const randomMember = membersHashed[Math.floor(Math.random() * membersHashed.length)];
+        console.log('randomMember ', randomMember);
+        let prLink = req.body.text;
+        let message = `Cześć <@${randomMember}>, wyznaczono cię do review! ${prLink}`;
+        res.status(200).json({
+            "response_type": "in_channel",
+            "text": message
+        });
+    })
 };
+
+async function getChannelUsers(channel_id) {
+    const url = `https://slack.com/api/conversations.members?channel=${channel_id}`;
+    const res = await axios.get(url, {headers: {authorization: `Bearer ${slackToken}`}});
+    console.log('url ', url);
+    console.log('response data ', res.data);
+    return res.data.members;
+}
+
