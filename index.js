@@ -23,7 +23,7 @@ exports.bananaSplit = async (req, res) => {
         const randomMember = membersHashed[Math.floor(Math.random() * membersHashed.length)];
         console.log('randomMember ', randomMember);
         let prLink = req.body.text;
-        let message = `Cześć <@${randomMember}>, wyznaczono cię do review! ${prLink}`;
+        let message = randomMember && `Cześć <@${randomMember}>, wyznaczono cię do review! ${prLink}` || 'Error!';
         res.status(200).json({
             "response_type": "in_channel",
             "text": message
@@ -36,6 +36,6 @@ async function getChannelUsers(channel_id) {
     const res = await axios.get(url, {headers: {authorization: `Bearer ${slackToken}`}});
     console.log('url ', url);
     console.log('response data ', res.data);
-    return res.data.members;
+    return res.data.members || [];
 }
 
