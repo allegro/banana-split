@@ -27,6 +27,8 @@ exports.bananaSplit = async (req, res) => {
     sendDM(randomMember, message)
     res.status(200).json({
         "response_type": "in_channel",
+        "replace_original": true,
+        "delete_original": true,
         "text": message
     });
 };
