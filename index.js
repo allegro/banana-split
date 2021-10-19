@@ -24,7 +24,9 @@ exports.bananaSplit = async (req, res) => {
     console.log('randomMember ', randomMember);
     let prLink = req.body.text;
     let message = randomMember && `Cześć <@${randomMember}>, wyznaczono cię do review! ${prLink}` || 'Error!';
-    sendDM(randomMember, message)
+    sendDM(randomMember, message);
+    let commandMessage = getLatestMessage(req.body.channel_id);
+    replyInThread(req.body.response_url, message, commandMessage.ts);
     res.status(200).json({
         "response_type": "in_channel",
         "replace_original": true,
@@ -48,4 +50,30 @@ async function sendDM(user_id, message) {
         text: message,
     }, {headers: {authorization: `Bearer ${slackToken}`}});
     console.log("Send DM")
+}
+
+async function getLatestMessage(channel_id) {
+    console.log("getting latest message")
+    const url = `https://slack.com/api/conversations.history`;
+    const res = await axios.post(url, {
+        channel: channel_id,
+        limit: 1,
+    }, {headers: {
+        authorization: `Bearer ${slackToken}`},
+        'Content-type': 'application/json'});
+    console.log('response data ', res.data);
+    console.log('response data message', res.data.message);
+    console.log('response data messages', res.data.messages);
+    return res.data.messages[0];
+}
+
+async function replyInThread(response_url, message, ts){
+    await axios.post(response_url, {
+        text: message,
+        response_type: 'in_channel',
+        thread_ts: ts,
+    }, { headers: {
+            authorization: `Bearer ${slackToken}`,
+            'Content-type': 'application/json'
+        } }).then(() => console.log("Replied in thread"));
 }
