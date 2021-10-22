@@ -16,19 +16,15 @@ const axios = require('axios');
 const slackToken = process.env.SLACK_SECRET;
 
 exports.bananaSplit = async (req, res) => {
-    console.log(slackToken);
     const membersHashed = await getChannelUsers(req.body.channel_id)
-    console.log('members Hashed ', membersHashed);
-    console.log('channel_id ', req.body.channel_id);
     const randomMember = membersHashed[Math.floor(Math.random() * membersHashed.length)];
-    console.log('randomMember ', randomMember);
     let prLink = req.body.text;
     let message = randomMember && `Cześć <@${randomMember}>, wyznaczono cię do review! ${prLink}` || 'Error!';
-    sendDM(randomMember, message)
-    res.status(200).json({
-        "response_type": "in_channel",
-        "text": message
-    });
+
+    await sendResponse(req.body.response_url, message)
+    await sendDM(randomMember, message)
+
+    res.status(200).send('')
 };
 
 async function getChannelUsers(channel_id) {
@@ -46,4 +42,14 @@ async function sendDM(user_id, message) {
         text: message,
     }, {headers: {authorization: `Bearer ${slackToken}`}});
     console.log("Send DM")
+}
+
+async function sendResponse(url, message) {
+    await axios.post(url, {
+        "response_type": "in_channel",
+        "replace_original": true,
+        "delete_original": true,
+        text: message,
+    }, {headers: {authorization: `Bearer ${slackToken}`},
+    });
 }
