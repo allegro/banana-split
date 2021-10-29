@@ -18,10 +18,12 @@ const slackToken = process.env.SLACK_SECRET;
 exports.bananaSplit = async (req, res) => {
     const membersHashed = await getChannelUsers(req.body.channel_id)
     const randomMember = membersHashed[Math.floor(Math.random() * membersHashed.length)];
-    let prLink = req.body.text;
-    let message = randomMember && `Cześć <@${randomMember}>, wyznaczono cię do review! ${prLink}` || 'Error!';
+    let messageText = req.body.text;
+    let pullRequestLink = getPullRequestLink(messageText)
+    let message = messageText.replace(pullRequestLink, '')
+    let notificationMessage = randomMember && `Cześć <@${randomMember}>, wyznaczono cię do review!` || 'Error!';
 
-    await sendResponse(req.body.response_url, message)
+    await sendResponse(req.body.response_url,notificationMessage, pullRequestLink, message)
     await sendDM(randomMember, message)
 
     res.status(200).send('')
@@ -44,12 +46,39 @@ async function sendDM(user_id, message) {
     console.log("Send DM")
 }
 
-async function sendResponse(url, message) {
-    await axios.post(url, {
+async function sendResponse(url, notificationMessage, link, message) {
+    await axios.post(url,getMessage(notificationMessage, link, message),
+        {headers: {authorization: `Bearer ${slackToken}`},});
+}
+
+function getMessage(notificationMessage, link, message){
+    return{
         "response_type": "in_channel",
         "replace_original": true,
         "delete_original": true,
-        text: message,
-    }, {headers: {authorization: `Bearer ${slackToken}`},
-    });
+        "attachments": [
+        {
+            "color": "#36a64f",
+            "pretext": message,
+            "author_name": "BananaSplit",
+            "title": "Pull Request Link",
+            "title_link": link,
+            "text": notificationMessage,
+            "fields": [
+                {
+                    "title": "Priority",
+                    "value": "High",
+                    "short": false
+                }
+            ],
+            "footer": "Allegro BananaSplit"
+        }
+    ]
+    }
+}
+
+function getPullRequestLink(message){
+    const urlExpression = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
+    let regex = new RegExp(urlExpression);
+    return regex.exec(message)[0];
 }
